@@ -1,0 +1,10 @@
+{
+"OPEN": "Open the link",
+"CLOSE": "Close the link",
+"SAVE": "Save the link",
+"EDIT": "Edit the link",
+"DELETE": "Delete the link",
+"TEMPLATE": "The parameters are {param1} and {param2}",
+"param1": "test parameter 1",
+"param2": "test parameter 2"
+}

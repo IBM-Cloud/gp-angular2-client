@@ -1,0 +1,9 @@
+{
+"OPEN": "Open the folder",
+"CLOSE": "Close the folder",
+"SAVE": "Save the folder",
+"EDIT": "Edit the folder",
+"DELETE": "Delete the folder",
+"TEMPLATE": "This is another {param}",
+"param": "test parameter"
+}
