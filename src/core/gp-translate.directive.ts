@@ -10,6 +10,7 @@ export class GpTranslateDirective implements OnInit {
     private _key: string;
     private _bundle: string;
     private _lang: string;
+    private _changedLanguage: string;
     private _params: any;
     private _parentcomponent: any;
     onLangChangeSub: Subscription;
@@ -21,9 +22,10 @@ export class GpTranslateDirective implements OnInit {
             console.log("Invalid component")
         }
         if(!this.onLangChangeSub) {
-               this.onLangChangeSub = this.gpTranslateService.onLangChange.subscribe((event: LangChangeEvent) => {
-                   this.getText(true);
-               });
+            this.onLangChangeSub = this.gpTranslateService.onLangChange.subscribe((event: LangChangeEvent) => {
+                this._changedLanguage = event.lang;
+                this.getText(true);
+            });
         }
     }
 
@@ -118,6 +120,9 @@ export class GpTranslateDirective implements OnInit {
         let lang;
         if (this._parentcomponent && this._parentcomponent.lang) {
             lang = this._parentcomponent.lang;
+        }
+        if (this._changedLanguage) {
+            lang = this._changedLanguage;
         }
         if (this._lang) {
             lang = this._lang;

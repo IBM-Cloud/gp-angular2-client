@@ -1,6 +1,14 @@
 <h1>
   {{title}}
 </h1>
+<div>
+  <select #langSelect (change)="ts.changeLanguage(langSelect.value)">
+      <option>en</option>
+      <option>es</option>
+      <option>fr</option>
+      <option>ja</option>
+  </select>
+</div>
 <div class="open" [gptranslate]="'OPEN'"></div>
 <div [gptranslate]>CLOSE</div>
 <div gptranslate>CLOSE</div>
@@ -10,7 +18,7 @@
 <div gptranslate="TEMPLATE" [formatparams]="{basic:'basic check'}"></div>
 <div gptranslate="TEMPLATE" bundle="bundle2" [formatparams]="{basic:'{param}'}"></div>
 <feature1></feature1>
-<div>{{"SAVE" | gptranslate:'en':'bundle2':'www' }}</div>
+<div>{{"SAVE" | gptranslate:'en':'bundle2':'param1' }}</div>
 <!--<div gptranslate="A" lang="en"></div>
 <div>{{"A"}}<p>water</p></div>
 <div gptranslate="C"></div>

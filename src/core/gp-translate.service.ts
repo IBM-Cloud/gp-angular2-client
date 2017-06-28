@@ -287,6 +287,10 @@ export class GpTranslateService {
         return language;
     }
 
+    public changeLanguage(lang: string): void {
+        this.onLangChange.emit({lang: lang});
+    }
+
     handleError(error: any): Promise<any> {
         return Promise.reject(error.message || error);
     }

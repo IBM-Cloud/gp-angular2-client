@@ -15,24 +15,25 @@ gpConfig.defaultLang = "en";
 let jsdata = new GpCredentials();
 
 let setup = (httpMock) => {
-  TestBed.configureTestingModule({
-    providers: [
-      GpTranslateService,
-      MockBackend,
-      BaseRequestOptions,
-      {
-        provide: Http,
-        useFactory: (backend: MockBackend, options: BaseRequestOptions) => new httpMock(backend, options),
-        deps: [ MockBackend, BaseRequestOptions ]
-      }
-    ]
-  });
-  inject([ MockBackend, Http ],
-    (mb: MockBackend, http: Http) => {
-      mockBackend = mb;
-      gpTranslateService = new GpTranslateService(http);
-      gpTranslateService.config = gpConfig;
-    })();
+    TestBed.configureTestingModule({
+        providers: [
+            GpTranslateService,
+            MockBackend,
+            BaseRequestOptions,
+            {
+                provide: Http,
+                useFactory: (backend: MockBackend, options: BaseRequestOptions) => new httpMock(backend, options),
+                deps: [ MockBackend, BaseRequestOptions ]
+            }
+        ]
+      });
+    inject([ MockBackend, Http ],
+        (mb: MockBackend, http: Http) => {
+            mockBackend = mb;
+            gpTranslateService = new GpTranslateService(http);
+            gpTranslateService.config = gpConfig;
+        }
+    )();
 };
 
 describe('Service: GpTranslateService', () => {
