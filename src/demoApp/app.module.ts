@@ -3,7 +3,7 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-import { GpTranslateModule } from '../core/gp-translate.module';
+import { GpTranslateModule } from '../../index';
 
 import { AppComponent } from './app.component';
 import { Feature1Component } from './feature1.component';

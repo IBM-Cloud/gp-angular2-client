@@ -8,4 +8,8 @@ export class GpAngular2ClientPage {
   getParagraphText() {
     return element(by.css('app-root h1')).getText();
   }
+
+  getTextInEnglish(str) {
+    return element(by.className(str)).getText();
+  }
 }
