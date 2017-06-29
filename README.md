@@ -26,13 +26,24 @@ Bluemix service.
 
 The SDK provides familiar Angular2 constructs, in the form of a Directive and a Service, that encapsulate usage of the restful API of the Globalization Pipeline to enable globalization of your application.
 
-This is still in development. The basic implementation borrows heavily from [ngx-translate](https://github.com/ngx-translate/core)
+The basic implementation is inspired from [ngx-translate](https://github.com/ngx-translate/core)
 
 ## Installation
 
-_Manual_ installation:
+#### _Git_ reference:
+
+    npm install "https://github.com/IBM-Bluemix/gp-angular2-client.git" --save-dev
+
+or add the following in `package.json`
+
+    "devDependencies":{
+        "ng2-g11n-pipeline": "git+https://github.com/IBM-Bluemix/gp-angular2-client.git"
+    }
+
+#### _Manual_ installation (for SDK source code):
 
     $ git clone git://github.com/IBM-Bluemix/gp-angular-client.git    
+
 
 # Usage
 
@@ -66,7 +77,8 @@ GpTranslateModule.forRoot({
   "gpCredentialsJson": <credentials path>,
   "defaultBundle": <defaultbundle>,
   "defaultLang": <defaultlang>,
-  "uselocal": <uselocal>
+  "uselocal": <uselocal>,
+  "localfallbackLang": <localfallbackLang>
 })
 ```
 * `<credentials path>` - refers to the location of the json file containing Globalization Pipeline service credentials. A sample credentials file located at `/assets/crendentials.json` will consist of the url, instanceId, userId, and password for the globalization pipeline instance.
@@ -77,6 +89,8 @@ GpTranslateModule.forRoot({
 
 * `<uselocal>` - can be **true** or **false**. If `true` then translations are loaded from the local application folder located at `/assets/i18n/`.
 For example, if uselocal is set to 'true', and default bundle is `test`, and `english (en)` translations are required, then the translation file is expected to be located at `/assets/i18n/test/en.json`. Currently only 'json' format for translations is supported in the SDK.
+
+* `<localfallbackLang>` - refers to the fallback language to be used when `uselocal` is set to `true` and the translations requested for a language do not exist in the local folder.
 
 
 #### Translations at component level
@@ -91,9 +105,9 @@ ngOnInit() {
 ```
 As shown above, by adding two public properties `bundle` and `lang` to the component, the component will use the assigned bundle and language for translation purposes. If not specified, then the default languages specified in configuration will be used.
 
-#### Using translation directives
+#### Using directives
 
-The SDK provides `gptranslate` directive to support Globalization Pipeline assisted translations. Following snippets show the different usecases
+This SDK provides `gptranslate` directive to support Globalization Pipeline assisted translations. Following snippets show the different usecases
 ```html
   <!-- key OPEN is translated using bundle/lang specified at Component level else default -->
   <div [gptranslate]="'OPEN'"></div>  
@@ -117,7 +131,30 @@ translated using bundle/lang specified at Component level else default. Finally 
   <div gptranslate="TEMPLATE" [formatparams]="{advanced:'{param}'}"></div>
 ```
 
-# Angular Client for Globalization Pipeline
+#### Using pipes
+
+This SDK also provides translation support using pipe. The following code snippet describes the usecases.
+
+```html
+    <!-- key EDIT is translated using default language and default bundle-->
+    <div>{{"EDIT" | gptranslate}}</div>
+
+    <!-- key EDIT is translated using 'bundle1' bundle and default language-->
+    <div>{{"EDIT" | gptranslate:'bundle1'}}</div>
+
+    <!-- key EDIT is translated using 'bundle1' bundle and 'es' language -->
+    <div>{{"EDIT" | gptranslate:'bundle1':'es'}}</div>
+
+    <!-- key EDIT is translated using 'bundle1' bundle and 'es' language and interpolated params-->
+    <div>{{"EDIT" | gptranslate:'bundle1':'es':'{"param1":"value1", "param2":"value2"}'}}</div>
+```
+
+#### Language change event support
+
+The SDK also provides the translation directives and pipes to subscribe to language change events. Using `changeLanguage(lang)`
+api of `GpTranslateService` all the translations executed with default language for directives and pipes will change based on the language specified in the `changeLanguage` function parameter.
+
+# Scripts
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0.
 
@@ -129,14 +166,19 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
 
-## Running unit tests
+## Testing
+
+Before running the tests make sure you have valid Globalization Pipeline instance credentials specified in  `assets/credentials.json`
+
+On the instance upload the bundles kept in `assets/i18n` folder. Only the "en.json" files need to be uploaded to the globalization pipeline instance.
+
+### Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
 ## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
+Then run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
 
 Community
 ---------

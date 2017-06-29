@@ -9,7 +9,11 @@ export class GpAngular2ClientPage {
     return element(by.css('app-root h1')).getText();
   }
 
-  getTextInEnglish(str) {
-    return element(by.className(str)).getText();
+  getText(className) {
+    return element(by.className(className)).getText();
+  }
+
+  changeLanguage(language) {
+    element(by.cssContainingText('option', 'es')).click();
   }
 }

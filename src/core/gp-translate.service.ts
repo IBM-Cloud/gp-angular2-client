@@ -103,7 +103,7 @@ export class GpTranslateService {
         return new RequestOptions({ headers: headers });
     }
 
-    loadCredentials(url:string): Promise<any> {
+    loadCredentials(url:string): Promise<{}> {
         return new Promise((resolve) => {
           this.http.get(url).map(res=>res.json())
           .subscribe(
@@ -120,8 +120,9 @@ export class GpTranslateService {
     getTranslation(key: string, bundleParam?: string, langParam?: string): Promise<{}> {
         let bundle = this._config.defaultBundle
         let  lang;
-        if (bundleParam)
+        if (bundleParam) {
             bundle = bundleParam;
+        }
         let cacheBundleData = this._cache.getBundleInfo(bundle);
         if (cacheBundleData) {
             lang = this.fallback(bundle, langParam);
@@ -130,7 +131,7 @@ export class GpTranslateService {
                 return Promise.resolve(resourceLangMap);
             }
         }
-        return this.loadtranslations(bundle, lang);
+        return this.loadtranslations(bundle, langParam);
     }
 
     // loading translations from local file
@@ -193,7 +194,7 @@ export class GpTranslateService {
         })});
     }
 
-    private updateCache(bundle: string, lang: string, resourceMap: {}): any {
+    private updateCache(bundle: string, lang: string, resourceMap: {}): void {
         let bundleData = this._cache.getBundleInfo(bundle);
         if (!bundleData) {
             bundleData = new BundleData();
@@ -202,7 +203,7 @@ export class GpTranslateService {
         bundleData.translations.set(lang, resourceMap);
     }
 
-    private getBundleInfo(bundle: string): Promise<{}> {
+    getBundleInfo(bundle: string): Promise<{}> {
         let baseurl = this._config.creds.url;
         let instanceId = this._config.creds.instanceId;
         let bundleInfoUrl = baseurl + "/" +  instanceId +"/v2/bundles/"+bundle;
@@ -238,9 +239,9 @@ export class GpTranslateService {
 
 
     getBrowserLang(): string {
-        let browserLang: any = window.navigator.language;
-        if (!browserLang) {
-            browserLang = "en";
+        let browserLang: any = "en";
+        if (window && window.navigator && window.navigator.language) {
+            browserLang = window.navigator.language;
         }
         return browserLang;
     }
@@ -287,7 +288,7 @@ export class GpTranslateService {
         return language;
     }
 
-    public changeLanguage(lang: string): void {
+    changeLanguage(lang: string): void {
         this.onLangChange.emit({lang: lang});
     }
 
