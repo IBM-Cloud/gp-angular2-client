@@ -1,0 +1,9 @@
+{
+"OPEN": "Abre el archivo",
+"CLOSE": "Cierre el archivo",
+"SAVE": "Guarda el archivo",
+"EDIT": "Editar el archivo",
+"DELETE": "Eliminar el archivo",
+"TEMPLATE": "Parámetro básico {basic}",
+"param": "parameter(es)"
+}

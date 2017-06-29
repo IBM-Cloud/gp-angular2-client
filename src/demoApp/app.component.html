@@ -1,20 +1,21 @@
 <h1>
   {{title}}
 </h1>
-<div [gptranslate]="'OPEN'"></div>
-<div [gptranslate]>CLOSE</div>
-<div gptranslate>CLOSE</div>
-<div [gptranslate] lang="en">EDIT</div>
-<div [gptranslate] lang="en">EDIT</div>
-<div [gptranslate] lang="en" bundle="bundle2">SAVE</div>
+<div>
+  <select #langSelect (change)="ts.changeLanguage(langSelect.value)">
+      <option>en</option>
+      <option>es</option>
+      <option>fr</option>
+      <option>ja</option>
+  </select>
+</div>
+<div class="open_defaultlang" [gptranslate]="'OPEN'"></div>
+<div class="close_spanish" [gptranslate] lang="es">CLOSE</div>
+<div class="close_default" gptranslate>CLOSE</div>
+<div class="edit_fallback_lang" [gptranslate] lang="qru">EDIT</div>
+<div [gptranslate] lang="qru">EDIT</div>
+<div class="save_different_bundle" [gptranslate] lang="en" bundle="bundle2">SAVE</div>
 <div gptranslate="TEMPLATE" [formatparams]="{basic:'basic check'}"></div>
 <div gptranslate="TEMPLATE" bundle="bundle2" [formatparams]="{basic:'{param}'}"></div>
 <feature1></feature1>
-<div>{{"SAVE" | gptranslate:'en':'bundle2':'www' }}</div>
-<!--<div gptranslate="A" lang="en"></div>
-<div>{{"A"}}<p>water</p></div>
-<div gptranslate="C"></div>
-<div gptranslate="view2_a" bundle="test" lang="en"></div>
-<div gptranslate="view2_b" bundle="test" lang="en"></div>
-
--->
+<div class="pipe_save_diffbundle">{{"SAVE" | gptranslate:'bundle2':'es' }}</div>

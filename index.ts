@@ -1,13 +1,14 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ModuleWithProviders, APP_INITIALIZER, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-import { GpTranslateDirective } from './gp-translate.directive';
-import { GpTranslatePipe } from './gp-translate.pipe';
+import { GpTranslateDirective } from './src/core/gp-translate.directive';
+import { GpTranslatePipe } from './src/core/gp-translate.pipe';
 
-import { GpTranslateService } from './gp-translate.service';
-import { GpConfig } from './gpconfig';
+import { GpTranslateService } from './src/core/gp-translate.service';
+import { GpConfig } from './src/core/gpconfig';
+
+export { GpTranslateService } from './src/core/gp-translate.service';
 
 export function ConfigLoader(gpTranslateService: GpTranslateService,
                             configObj:any) {
@@ -18,10 +19,11 @@ export function ConfigLoader(gpTranslateService: GpTranslateService,
   config.defaultLang = configObj.defaultLang;
   config.defaultBundle = configObj.defaultBundle;
   config.uselocal = configObj.uselocal;
+  config.localfallbackLang = configObj.localfallbackLang;
   gpTranslateService.config = config;
   // during app bootstrapping we load the credentials, and then the translations from the default bundle and language specified
   return () => gpTranslateService.loadCredentials(configObj.gpCredentialsJson).
-        then(() => gpTranslateService.getTranslationFromGP(configObj.defaultBundle, configObj.defaultLang));
+        then(() => gpTranslateService.loadtranslations(configObj.defaultBundle, configObj.defaultLang));
         // without `() =>` appinits[i] error occurs
 }
 
