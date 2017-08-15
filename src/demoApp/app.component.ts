@@ -5,11 +5,13 @@ import { GpTranslateService } from '../core/gp-translate.service';
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
     title = 'Angular2 Client for Globalization Pipeline';
-
+    demoparam = {'param' : 'data'};
     constructor(private ts: GpTranslateService) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+      console.log('demoparam', this.demoparam);
+    }
 
 }

@@ -19,9 +19,9 @@ export class GpTranslateDirective implements OnInit {
         try {
             this._parentcomponent =  this.vcRef[ '_data' ].viewContainer['_view'].component;
         } catch (e) {
-            console.log("Invalid component")
+            console.log('Invalid component');
         }
-        if(!this.onLangChangeSub) {
+        if (!this.onLangChangeSub) {
             this.onLangChangeSub = this.gpTranslateService.onLangChange.subscribe((event: LangChangeEvent) => {
                 this._changedLanguage = event.lang;
                 this.getText(true);
@@ -53,58 +53,67 @@ export class GpTranslateDirective implements OnInit {
         this._params = params;
     }
 
-    getText(update = false, actualKey?:string) {
-        let nodes: Node[] = this.element.nativeElement.childNodes;
-        if ((nodes.length == 0 || update) && this._key) {
+    getText(update = false, actualKey?: string) {
+        const nodes: Node[] = this.element.nativeElement.childNodes;
+        if ((nodes.length === 0 || update) && this._key) {
             this.getTranslation(this._key).then((value) => {
               this.interpolatedText(value).then((data) => this.element.nativeElement.textContent = data) ;
             });
             return;
         }
-        for (let node of nodes) {
-            if (node.nodeType == 3) { // node type 3 is always text node
+        for (const node of nodes) {
+            if (node.nodeType === 3) { // node type 3 is always text node
                 this._key = node.textContent;
                 this.getTranslation(this._key).then((value) => {
-                    this.interpolatedText(value).then((data)=> {node.textContent = data});
+                    this.interpolatedText(value).then((data) => {
+                        node.textContent = data;
+                    });
                 });
             }
         }
     }
 
     interpolatedText(originaltext: string): Promise<any> {
-      if (!this._params)
+      if (!this._params) {
           return Promise.resolve(originaltext);
-      let paramMap = this._params;
-      let promises = []
-      for (let key in paramMap) {
-          let keyText = paramMap[key];
-          let translatedText = keyText;
-          promises.push(this.parse(key, keyText));
+      }
+      const paramMap = this._params;
+      const promises = [];
+      for (const key in paramMap) {
+          if (paramMap[key]) {
+              const keyText = paramMap[key];
+              promises.push(this.parse(key, keyText));
+          }
       }
       return Promise.all(promises)
         .then((results) => {
-          for (let k in results) {
-              let replaceStr = "{"+results[k][0]+"}";
-              if (originaltext)
-                  originaltext = originaltext.replace(replaceStr, results[k][1]);
-              }
-              return originaltext;
+            for (const k in results) {
+                if (results[k]) {
+                    const replaceStr = '{' + results[k][0] + '}';
+                    if (originaltext) {
+                        originaltext = originaltext.replace(replaceStr, results[k][1]);
+                    }
+                }
+            }
+            return originaltext;
           },
-          (error) => console.log("Error occurred")
+          (error) => {
+              console.log('Error occurred');
+          }
       )
       .catch((e) => {
-          console.log("Failed to interpolate text", e);
+          console.log('Failed to interpolate text', e);
       });
     }
 
     parse(key: string, text: string): Promise<any> {
-       let templateMatcher: RegExp = /{\s?([^{}\s]*)\s?}/g;
-       let match = templateMatcher.exec(text);
+       const templateMatcher: RegExp = /{\s?([^{}\s]*)\s?}/g;
+       const match = templateMatcher.exec(text);
        if (match) {
-          let modkey = match[1];
+          const modkey = match[1];
           return this.getTranslation(modkey).then((data) => {
               return Promise.resolve([modkey, data]);
-          })
+          });
        }
        return Promise.resolve([key, text]);
     }
@@ -127,7 +136,7 @@ export class GpTranslateDirective implements OnInit {
         if (this._lang) {
             lang = this._lang;
         }
-        return this.gpTranslateService.getTranslation(key, bundle, lang)
+        return this.gpTranslateService.getResourceStrings(bundle, lang)
           .then((resourceMap) => {
             if (key in resourceMap) {
               return resourceMap[key];

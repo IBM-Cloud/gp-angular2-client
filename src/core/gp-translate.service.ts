@@ -1,7 +1,6 @@
 import { Injectable, Input, Inject, EventEmitter } from '@angular/core';
-import { Http, Headers, RequestOptions, Response, ResponseOptions } from '@angular/http';
+import { Http, Headers, RequestOptions } from '@angular/http';
 import { GpConfig } from './gpconfig';
-import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 export interface LangChangeEvent {
@@ -20,8 +19,10 @@ export class BundleData {
         let fallback: string[];
         fallback = [];
         fallback.push(this.sourceLanguage);
-        for (var index in this.targetLanguages) {
-            fallback.push(this.targetLanguages[index]);
+        for (const index in this.targetLanguages) {
+            if (this.targetLanguages[index]) {
+                fallback.push(this.targetLanguages[index]);
+            }
         }
         return fallback;
     }
@@ -48,8 +49,8 @@ export class Cache {
             this.dataCacheMap.set(bundleName, bundleData);
         }
         bundleData.bundleName = bundleName;
-        bundleData.sourceLanguage = info["sourceLanguage"];
-        bundleData.targetLanguages = info["targetLanguages"];
+        bundleData.sourceLanguage = info['sourceLanguage'];
+        bundleData.targetLanguages = info['targetLanguages'];
     }
 
     putTranslations(bundleName: string, lang: string, incomingTranslations: {}) {
@@ -93,43 +94,72 @@ export class GpTranslateService {
       Setting up headers (basic authentication) for globalization pipeline instance
     **/
     get basicHeaders(): RequestOptions {
-        if (this._requestOptions)
+        if (this._requestOptions) {
            return this._requestOptions;
-        let username: string = this._config.creds.userId;
-        let password: string = this._config.creds.password;
-        let headers: Headers = new Headers();
-        headers.append("Authorization", "Basic " + btoa(username + ":" + password));
-        headers.append("Content-Type", "application/x-www-form-urlencoded");
+        }
+        const username: string = this._config.creds.userId;
+        const password: string = this._config.creds.password;
+        const headers: Headers = new Headers();
+        headers.append('Authorization', 'Basic ' + btoa(username + ':' + password));
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
         return new RequestOptions({ headers: headers });
     }
 
-    loadCredentials(url:string): Promise<{}> {
+    loadCredentials(url: string): Promise<{}> {
         return new Promise((resolve) => {
-          this.http.get(url).map(res=>res.json())
+          this.http.get(url).map(res => res.json())
           .subscribe(
             creds => {
                     this._config.creds = creds;
                     resolve(creds);
             },
             error => {
-                  this.handleError("Failed to load credentials")
+                  this.handleError('Failed to load credentials');
             });
         });
     }
 
-    getTranslation(key: string, bundleParam?: string, langParam?: string): Promise<{}> {
-        let bundle = this._config.defaultBundle
+    getTranslation(key: string, values?: any, bundleParam?: string, langParam?: string): Promise<{}> {
+        return this.getResourceStrings(bundleParam, langParam).then((resourceMap) => {
+            if (resourceMap && resourceMap[key]) {
+                return this.interpolatedText(resourceMap[key], values);
+            } else {
+              return key;
+            }
+        });
+    }
+
+    interpolatedText(originaltext: string, values: any): string {
+        if (!values) {
+            return originaltext;
+        }
+        let returnText = originaltext;
+        for (const key in values) {
+            if (values.hasOwnProperty(key)) {
+                const keyValue = values[key];
+                const replaceStr = '{' + key + '}';
+                if (returnText) {
+                    returnText = returnText.replace(replaceStr, keyValue);
+                }
+            }
+        }
+        return returnText;
+    }
+
+    getResourceStrings(bundleParam?: string, langParam?: string): Promise<{}> {
+        let bundle = this._config.defaultBundle;
         let  lang;
         if (bundleParam) {
             bundle = bundleParam;
         }
-        let cacheBundleData = this._cache.getBundleInfo(bundle);
+        const cacheBundleData = this._cache.getBundleInfo(bundle);
         if (cacheBundleData) {
             lang = this.fallback(bundle, langParam);
-            let resourceLangMap = cacheBundleData.getLangTranslations(lang);
+            const resourceLangMap = cacheBundleData.getLangTranslations(lang);
             if (resourceLangMap) {
                 return Promise.resolve(resourceLangMap);
             }
+            console.log('loading from cache', bundle, lang);
         }
         return this.loadtranslations(bundle, langParam);
     }
@@ -137,18 +167,19 @@ export class GpTranslateService {
     // loading translations from local file
     getLocalTranslations(bundle: string, lang: string): Promise<{}> {
         let localpath = this._config.localpath;
-        if (!localpath)
-            localpath = "/assets/i18n";
+        if (!localpath) {
+            localpath = '/assets/i18n';
+        }
         lang = this.fallback(bundle, lang);
         return new Promise((resolve) => {
-            this.http.get(localpath+"/"+bundle+"/"+lang+".json")
+            this.http.get(localpath + '/' + bundle + '/' + lang + '.json')
             .subscribe(
               data => {
                   this.updateCache(bundle, lang, data.json());
                   resolve(data.json());
                     },
               error => {
-                  this.handleError("Failed to load translations from local path")
+                  this.handleError('Failed to load translations from local path');
               }
             );
         });
@@ -161,37 +192,36 @@ export class GpTranslateService {
               return this.getLocalTranslations(bundle, lang);
             });
         }
-        let baseurl = this._config.creds.url;
-        let instanceId = this._config.creds.instanceId;
-        let bundleUrl = baseurl + "/" +  instanceId +"/v2/bundles/"+bundle+"/"+lang;
+        const baseurl = this._config.creds.url;
+        const instanceId = this._config.creds.instanceId;
+        const bundleUrl = baseurl + '/' +  instanceId + '/v2/bundles/' + bundle + '/' + lang;
+        console.log('loading from GP instance', bundle, lang);
         return this.getBundleInfo(bundle).then(() => {
-        return new Promise((resolve) => {
-            this.http.get(bundleUrl, this.basicHeaders)
-            .map(res => res.json())
-            .subscribe(
-                data => {
-                    let resourceMap = data.resourceStrings;
-                    this.updateCache(bundle, lang, resourceMap);
-                    resolve(resourceMap);
-                },
-                error => {
-                    let bundleData = this._cache.getBundleInfo(bundle);
-                    if (bundleData) {
-                        lang = this.fallback(bundle, lang);
-                        let resourceMap = bundleData.getLangTranslations(lang);
-                        if (resourceMap != null) {
-                            resolve(resourceMap);
-                        }
-                        else {
-                            this.handleError("Failed to load translations using globalization pipeline instance and fallback language");
-                        }
-                    }
-                   else {
-                      this.handleError("Failed to load translations from globalization pipeline instance");
-                   }
-                }
-             )
-        })});
+            return new Promise((resolve) => {
+                this.http.get(bundleUrl, this.basicHeaders)
+                .map(res => res.json())
+                .subscribe(
+                    data => {
+                        const resourceMap = data.resourceStrings;
+                        this.updateCache(bundle, lang, resourceMap);
+                        resolve(resourceMap);
+                    },
+                    error => {
+                        const bundleData = this._cache.getBundleInfo(bundle);
+                        if (bundleData) {
+                            lang = this.fallback(bundle, lang);
+                            const resourceMap = bundleData.getLangTranslations(lang);
+                            if (resourceMap != null) {
+                                resolve(resourceMap);
+                            } else {
+                                this.handleError('Failed to load translations using globalization pipeline instance and fallback language');
+                            }
+                        } else {
+                          this.handleError('Failed to load translations from globalization pipeline instance');
+                       }
+                  });
+              });
+         });
     }
 
     private updateCache(bundle: string, lang: string, resourceMap: {}): void {
@@ -204,21 +234,21 @@ export class GpTranslateService {
     }
 
     getBundleInfo(bundle: string): Promise<{}> {
-        let baseurl = this._config.creds.url;
-        let instanceId = this._config.creds.instanceId;
-        let bundleInfoUrl = baseurl + "/" +  instanceId +"/v2/bundles/"+bundle;
+        const baseurl = this._config.creds.url;
+        const instanceId = this._config.creds.instanceId;
+        const bundleInfoUrl = baseurl + '/' +  instanceId + '/v2/bundles/' + bundle;
         if (this._config.uselocal) {
-            let bundleData: BundleData = new BundleData();
+            const bundleData: BundleData = new BundleData();
             if (this._config.localfallbackLang) {
                 bundleData.sourceLanguage = this._config.localfallbackLang;
             } else {
               // default to english as source/fallback language for local translations
-                bundleData.sourceLanguage = "en";
+                bundleData.sourceLanguage = 'en';
             }
             this._cache.putBundleInfo(bundle, bundleData);
             return Promise.resolve(bundleData);
         }
-        let bundleData = this._cache.getBundleInfo(bundle);
+        const bundleData = this._cache.getBundleInfo(bundle);
         if (bundleData) {
             return Promise.resolve(bundleData);
         }
@@ -231,15 +261,15 @@ export class GpTranslateService {
                   resolve(data.bundle);
                 },
                 error => {
-                    this.handleError("Failed to load bundle info");
+                    this.handleError('Failed to load bundle info');
                 }
-            )
+            );
         });
     }
 
 
     getBrowserLang(): string {
-        let browserLang: any = "en";
+        let browserLang: any = 'en';
         if (window && window.navigator && window.navigator.language) {
             browserLang = window.navigator.language;
         }
@@ -247,7 +277,7 @@ export class GpTranslateService {
     }
 
     fallback(bundle: string, language?: string): string {
-        let map = {
+        const map = {
                 'zh-TW': 'zh-Hant-TW',
                 'zh-HK': 'zh-Hant-HK',
                 'zh-CN': 'zh-Hans-CN',
@@ -272,15 +302,17 @@ export class GpTranslateService {
             splits.pop(); // ['en', 'US'] --> ['en']
             language = splits.join('_');  // [ 'en' ] --> 'en'
         }
-        let bundleData = this._cache.getBundleInfo(bundle);
+        const bundleData = this._cache.getBundleInfo(bundle);
         if (bundleData) {
-            let fallbackLangs:string[] = bundleData.getFallbackLanguages();
+            const fallbackLangs: string[] = bundleData.getFallbackLanguages();
             // loading translations from cache (for a fallback language)
             if (fallbackLangs.indexOf(language) < 0 && fallbackLangs.length > 0) {
-                for (var index in fallbackLangs) {
-                    let translations = bundleData.getLangTranslations(fallbackLangs[index])
-                    if (translations) {
-                        return fallbackLangs[index];
+                for (const index in fallbackLangs) {
+                    if (fallbackLangs[index]) {
+                        const translations = bundleData.getLangTranslations(fallbackLangs[index]);
+                        if (translations) {
+                            return fallbackLangs[index];
+                        }
                     }
                 }
             }
