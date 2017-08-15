@@ -1,5 +1,4 @@
-import { NgModule, ModuleWithProviders, APP_INITIALIZER, Inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { NgModule, ModuleWithProviders, APP_INITIALIZER } from '@angular/core';
 import { HttpModule } from '@angular/http';
 
 import { GpTranslateDirective } from './src/core/gp-translate.directive';
@@ -11,8 +10,8 @@ import { GpConfig } from './src/core/gpconfig';
 export { GpTranslateService } from './src/core/gp-translate.service';
 
 export function ConfigLoader(gpTranslateService: GpTranslateService,
-                            configObj:any) {
-  let config: GpConfig = new GpConfig();
+                            configObj: any) {
+  const config: GpConfig = new GpConfig();
   if (!configObj.defaultLang) {
     configObj.defaultLang = gpTranslateService.getBrowserLang();
   }
@@ -35,8 +34,8 @@ export function ConfigLoader(gpTranslateService: GpTranslateService,
   imports: [
     HttpModule
   ],
-  providers:[],
-  exports:[GpTranslateDirective, GpTranslatePipe]
+  providers: [],
+  exports: [GpTranslateDirective, GpTranslatePipe]
 })
 
 export class GpTranslateModule {
@@ -47,8 +46,8 @@ export class GpTranslateModule {
       providers: [GpTranslateService,
         { provide: configObj, useValue: configObj, multi: false},
         { provide: APP_INITIALIZER, useFactory: ConfigLoader,
-          deps:[GpTranslateService, configObj], multi: true },
+          deps: [GpTranslateService, configObj], multi: true },
       ]
-    }
+    };
   }
 }

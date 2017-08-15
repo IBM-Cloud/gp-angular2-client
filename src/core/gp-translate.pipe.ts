@@ -14,7 +14,7 @@ export class GpTranslatePipe implements PipeTransform, OnDestroy {
     private _changedLanguage: string;
     private _params: string;
     onLangChangeSub: Subscription;
-    constructor (private gpTranslateService: GpTranslateService){
+    constructor (private gpTranslateService: GpTranslateService) {
     }
 
     transform(translationkey: string, bundleParam?: string, langParam?: string, params?: string): string {
@@ -22,7 +22,7 @@ export class GpTranslatePipe implements PipeTransform, OnDestroy {
             this._key = translationkey;
             this._bundle =  this.gpTranslateService.getConfig().defaultBundle;
             if (bundleParam) {
-                this._bundle = bundleParam
+                this._bundle = bundleParam;
             }
             if (langParam) {
                 this._lang = langParam;
@@ -31,7 +31,7 @@ export class GpTranslatePipe implements PipeTransform, OnDestroy {
             this._params = params;
             this.getNewTranslation(translationkey, this._bundle, this._lang);
             this._dispose();
-            if(!this.onLangChangeSub) {
+            if (!this.onLangChangeSub) {
                 this.onLangChangeSub = this.gpTranslateService.onLangChange.subscribe((event: LangChangeEvent) => {
                     this._changedLanguage = event.lang;
                     this.getNewTranslation(this._key, this._bundle, this._changedLanguage);
@@ -42,28 +42,35 @@ export class GpTranslatePipe implements PipeTransform, OnDestroy {
     }
 
     // method to replace placeholders with input params
-    // for example if text is "show the {tempParam}" and params is {"tempParam":"file"}
-    //     then the text changes to "show the file"
+    // for example if text is 'show the {tempParam}' and params is {'tempParam':'file'}
+    //     then the text changes to 'show the file'
     interpolatedText(originaltext: string, params: string): Promise<any> {
-      let promises = [];
-      let paramMap:{} = JSON.parse(params);
-      for (let key in paramMap) {
-          let keyText = paramMap[key];
-          promises.push([key, keyText]);
+      const promises = [];
+      const paramMap: {} = JSON.parse(params);
+      for (const key in paramMap) {
+          if (paramMap[key]) {
+              const keyText = paramMap[key];
+              promises.push([key, keyText]);
+          }
       }
       return Promise.all(promises)
         .then((results) => {
-          for (let k in results) {
-              let replaceStr = "{"+results[k][0]+"}";
-              if (originaltext)
-                  originaltext = originaltext.replace(replaceStr, results[k][1]);
-              }
-              return originaltext;
+            for (const k in results) {
+                if (results[k]) {
+                    const replaceStr = '{' + results[k][0] + '}';
+                    if (originaltext) {
+                        originaltext = originaltext.replace(replaceStr, results[k][1]);
+                    }
+                }
+            }
+            return originaltext;
           },
-          (error) => console.log("Error occurred")
+          (error) =>  {
+            console.log('Error occurred');
+          }
       )
-      .catch((e) => {
-          console.log("Failed to interpolate text", e);
+      .catch( (e) => {
+          console.log('Failed to interpolate text', e);
       });
     }
 
@@ -72,20 +79,20 @@ export class GpTranslatePipe implements PipeTransform, OnDestroy {
       if (this._lang) {
           lang = this._lang;
       }
-      this.gpTranslateService.getTranslation(key, bundle, lang).then((data) => {
+      this.gpTranslateService.getResourceStrings(bundle, lang).then((data) => {
           if (key in data) {
               this._cachedText = data[key];
               if (this._params) {
                   this.interpolatedText(this._cachedText, this._params).then((text) => {
                       this._cachedText = text;
-                  })
+                  });
               }
           }
       });
     }
 
     _dispose(): void {
-       if(this.onLangChangeSub) {
+       if (this.onLangChangeSub) {
            this.onLangChangeSub.unsubscribe();
            this.onLangChangeSub = undefined;
        }
