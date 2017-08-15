@@ -37,8 +37,26 @@ export class Cache {
     // Map of bundleName to bundleData
     dataCacheMap: Map<string, BundleData> = new Map<string, BundleData>();
 
+    promiseCacheMap: Map<string, Promise<any>> = new Map<string, Promise<any>>();
+
     getBundleInfo(bundleName: string): BundleData {
         return this.dataCacheMap.get(bundleName);
+    }
+
+    hasAvailablePromise(bundle: string, lang: string) {
+        const bundleLangPromise: Promise<any> = this.promiseCacheMap.get(bundle + '_' + lang);
+        if (bundleLangPromise) {
+            return true;
+        }
+        return false;
+    }
+
+    getPromise(bundle: string, lang: string): Promise<any> {
+        return this.promiseCacheMap.get(bundle + '_' + lang);
+    }
+
+    putPromise(bundle: string, lang: string, promise: Promise<any> ) {
+        this.promiseCacheMap.set(bundle + '_' + lang, promise);
     }
 
     putBundleInfo(bundleName: string, info: {}) {
@@ -159,7 +177,6 @@ export class GpTranslateService {
             if (resourceLangMap) {
                 return Promise.resolve(resourceLangMap);
             }
-            console.log('loading from cache', bundle, lang);
         }
         return this.loadtranslations(bundle, langParam);
     }
@@ -195,8 +212,15 @@ export class GpTranslateService {
         const baseurl = this._config.creds.url;
         const instanceId = this._config.creds.instanceId;
         const bundleUrl = baseurl + '/' +  instanceId + '/v2/bundles/' + bundle + '/' + lang;
-        console.log('loading from GP instance', bundle, lang);
-        return this.getBundleInfo(bundle).then(() => {
+
+        if (this.getCache().hasAvailablePromise(bundle, lang)) {
+            return new Promise((resolve) => {
+              this.getCache().getPromise(bundle, lang).then((resourceMap) => {
+                resolve(resourceMap);
+              });
+            });
+        } else {
+            const cachePromise: Promise<any> = this.getBundleInfo(bundle).then(() => {
             return new Promise((resolve) => {
                 this.http.get(bundleUrl, this.basicHeaders)
                 .map(res => res.json())
@@ -222,6 +246,13 @@ export class GpTranslateService {
                   });
               });
          });
+         this.getCache().putPromise(bundle, lang, cachePromise);
+         return cachePromise;
+       }
+    }
+
+    private getCache(): Cache {
+        return this._cache;
     }
 
     private updateCache(bundle: string, lang: string, resourceMap: {}): void {
