@@ -4,6 +4,6 @@
 "SAVE": "Save the folder",
 "EDIT": "Edit the folder",
 "DELETE": "Delete the folder",
-"TEMPLATE": "This is another {param}",
+"TEMPLATE": "This is another {{param}}",
 "param": "test parameter"
 }

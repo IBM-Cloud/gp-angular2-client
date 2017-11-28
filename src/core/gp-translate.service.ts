@@ -137,7 +137,7 @@ export class GpTranslateService {
         });
     }
 
-    getTranslation(key: string, values?: any, bundleParam?: string, langParam?: string): Promise<{}> {
+    getTranslation(key: string, values?: any, bundleParam?: string, langParam?: string): Promise<string> {
         return this.getResourceStrings(bundleParam, langParam).then((resourceMap) => {
             if (resourceMap && resourceMap[key]) {
                 return this.interpolatedText(resourceMap[key], values);
@@ -155,7 +155,7 @@ export class GpTranslateService {
         for (const key in values) {
             if (values.hasOwnProperty(key)) {
                 const keyValue = values[key];
-                const replaceStr = '{' + key + '}';
+                const replaceStr = '{{' + key + '}}';
                 if (returnText) {
                     returnText = returnText.replace(replaceStr, keyValue);
                 }

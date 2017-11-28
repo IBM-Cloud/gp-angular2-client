@@ -4,6 +4,6 @@
 "SAVE": "Save the file",
 "EDIT": "Edit the file",
 "DELETE": "Delete the file",
-"TEMPLATE": "Basic parameter {basic}",
+"TEMPLATE": "Basic parameter {{basic}}",
 "param": "parameter"
 }
