@@ -115,6 +115,13 @@ This SDK provides `gptranslate` directive to support Globalization Pipeline assi
   <!-- key OPEN is translated using bundle/lang specified at Component level else default -->
   <div gptranslate>OPEN</div>
 
+  <!-- key OPEN is translated using bundle/lang specified at Component level else default. The text node ('SAVE') will be ignored -->
+  <div gptranslate="OPEN">SAVE</div>
+
+  <!-- key OPEN is translated using bundle/lang specified at Component level else default. The text node with whitespaces/newlines are ignored-->
+  <div gptranslate="OPEN">
+  </div>
+
   <!-- key OPEN is translated using 'es' lang and bundle specified at Component level else default -->
   <div [gptranslate] lang="es">OPEN</div>
 
@@ -168,7 +175,8 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Testing
 
-Before running the tests make sure you have valid Globalization Pipeline instance credentials specified in  `assets/credentials.json`
+Before running the tests make sure you have valid Globalization Pipeline instance credentials specified in  `assets/credentials.json`.
+The credentials provided should be of a Reader to support basic auth.
 
 On the instance upload the bundles kept in `assets/i18n` folder. Only the "en.json" files need to be uploaded to the globalization pipeline instance.
 
