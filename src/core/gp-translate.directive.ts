@@ -63,11 +63,19 @@ export class GpTranslateDirective implements OnInit {
         }
         for (const node of nodes) {
             if (node.nodeType === 3) { // node type 3 is always text node
-                this._key = node.textContent;
+                let nodeText: string = node.textContent;
+                nodeText = nodeText.replace(/^\s+|\s+$/g, '');
+                if (nodeText.length > 0 && !this._key) {
+                    this._key = nodeText;
+                }
                 this.getTranslation(this._key).then((value) => {
-                    this.interpolatedText(value).then((data) => {
-                        node.textContent = data;
-                    });
+                    if (value) {
+                        this.interpolatedText(value).then((data) => {
+                            if (data) {
+                                node.textContent = data;
+                            }
+                        });
+                    }
                 });
             }
         }
