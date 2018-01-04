@@ -80,16 +80,16 @@ export class GpTranslateDirective implements OnInit {
       const paramMap = this._params;
       const promises = [];
       for (const key in paramMap) {
-          if (paramMap[key]) {
-              const keyText = paramMap[key];
-              promises.push(this.parse(key, keyText));
-          }
+        if (paramMap.hasOwnProperty(key)) {
+            const keyText = paramMap[key];
+            promises.push(this.parse(key, keyText));
+        }
       }
       return Promise.all(promises)
         .then((results) => {
             for (const k in results) {
                 if (results[k]) {
-                    const replaceStr = '{' + results[k][0] + '}';
+                    const replaceStr = '{{' + results[k][0] + '}}';
                     if (originaltext) {
                         originaltext = originaltext.replace(replaceStr, results[k][1]);
                     }
