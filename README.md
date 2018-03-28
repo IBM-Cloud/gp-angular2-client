@@ -21,7 +21,7 @@ Angular2 for the Globalization Pipeline on IBM's Bluemix
 
 #  What is this?
 This project provides an SDK for Angular2 developers to dynamically utilize the
-[Globalization Pipeline](https://github.com/IBM-Bluemix/gp-common#globalization-pipeline)
+[Globalization Pipeline](https://github.com/IBM-Cloud/gp-common#globalization-pipeline)
 Bluemix service.
 
 The SDK provides familiar Angular2 constructs, in the form of a Directive and a Service, that encapsulate usage of the restful API of the Globalization Pipeline to enable globalization of your application.
@@ -32,17 +32,17 @@ The basic implementation is inspired from [ngx-translate](https://github.com/ngx
 
 #### _Git_ reference:
 
-    npm install "https://github.com/IBM-Bluemix/gp-angular2-client.git" --save-dev
+    npm install "https://github.com/IBM-Cloud/gp-angular2-client.git" --save-dev
 
 or add the following in `package.json`
 
     "devDependencies":{
-        "ng2-g11n-pipeline": "git+https://github.com/IBM-Bluemix/gp-angular2-client.git"
+        "ng2-g11n-pipeline": "git+https://github.com/IBM-Cloud/gp-angular2-client.git"
     }
 
 #### _Manual_ installation (for SDK source code):
 
-    $ git clone git://github.com/IBM-Bluemix/gp-angular-client.git    
+    $ git clone git://github.com/IBM-Cloud/gp-angular-client.git    
 
 
 # Usage
@@ -50,7 +50,7 @@ or add the following in `package.json`
 ### Getting started
 
 To get started, you should familiarize yourself with the service itself. A
-good place to begin is by reading the [Quick Start Guide](https://github.com/IBM-Bluemix/gp-common#quick-start-guide) and the official [Getting Started with IBM Globalization ](https://www.ng.bluemix.net/docs/services/GlobalizationPipeline/index.html) documentation.
+good place to begin is by reading the [Quick Start Guide](https://github.com/IBM-Cloud/gp-common#quick-start-guide) and the official [Getting Started with IBM Globalization ](https://www.ng.bluemix.net/docs/services/GlobalizationPipeline/index.html) documentation.
 
 The documentation explains how to find the service on Bluemix, create a new service instance, create a new bundle, and access the translated messages.
 
@@ -190,7 +190,7 @@ Then run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.pr
 
 Community
 ---------
-* View or file GitHub [Issues](https://github.com/IBM-Bluemix/gp-angular2-client/issues)
+* View or file GitHub [Issues](https://github.com/IBM-Cloud/gp-angular2-client/issues)
 
 Contributing
 ------------
