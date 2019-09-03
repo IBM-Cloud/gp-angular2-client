@@ -142,7 +142,13 @@ export class GpTranslateService {
             if (resourceMap && resourceMap[key]) {
                 return this.interpolatedText(resourceMap[key], values);
             } else {
-              return key;
+                return this.getResourceStrings(bundleParam, this._config.defaultLang).then((defaultResourceMap) => {
+                    if (defaultResourceMap && defaultResourceMap[key]) {
+                        return this.interpolatedText(defaultResourceMap[key], values);
+                    } else {
+                        return key;
+                    }
+                });
             }
         });
     }
