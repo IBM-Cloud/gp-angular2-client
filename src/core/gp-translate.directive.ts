@@ -155,4 +155,15 @@ export class GpTranslateDirective implements OnInit {
     ngOnInit() {
       this.getText();
     }
+
+    _dispose(): void {
+       if (this.onLangChangeSub) {
+           this.onLangChangeSub.unsubscribe();
+           this.onLangChangeSub = undefined;
+       }
+    }
+
+    ngOnDestroy(): void {
+        this._dispose();
+    }
 }
